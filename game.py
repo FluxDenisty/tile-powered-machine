@@ -32,7 +32,7 @@ class Game:
         self.parseTiles()
         self.makeDeck()
 
-        self.grid = [[None] * self.height] * self.width
+        self.grid = [[None for y in range(self.height)] for x in range(self.width)]
 
     def makeDeck(self):
         self.deck = [None] * self.deckSize
