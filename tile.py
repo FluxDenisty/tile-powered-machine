@@ -32,13 +32,13 @@ class Tile:
         ret = [False] * 4
         c = self.conType
 
-        if (c is "O" or c is "I" or c is "L" or c is "X"):
+        if (c == "O" or c == "I" or c == "L" or c == "X"):
             ret[(0 + self.rotation) % 4] = True
-        if (c is "L" or c is "T" or c is "X"):
+        if (c == "L" or c == "T" or c == "X"):
             ret[(1 + self.rotation) % 4] = True
-        if (c is "I" or c is "T" or c is "X"):
+        if (c == "I" or c == "T" or c == "X"):
             ret[(2 + self.rotation) % 4] = True
-        if (c is "T" or c is "X"):
+        if (c == "T" or c == "X"):
             ret[(3 + self.rotation) % 4] = True
 
         self.connections = ret
