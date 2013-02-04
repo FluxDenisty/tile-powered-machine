@@ -1,8 +1,22 @@
 [
     {
-        "number": 60
+        "number": 20,
+        "conType": "O"
     },
     {
-        "number": 40
+        "number": 20,
+        "conType": "I"
+    },
+    {
+        "number": 20,
+        "conType": "L"
+    },
+    {
+        "number": 20,
+        "conType": "T"
+    },
+    {
+        "number": 20,
+        "conType": "X"
     }
 ]

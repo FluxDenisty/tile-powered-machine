@@ -1,6 +1,7 @@
 import pygame
 import sys
 from pygame.locals import KEYDOWN, KEYUP, K_LSUPER, K_RSUPER, K_q, K_w, QUIT
+from pygame.locals import MOUSEBUTTONUP
 from game import Game
 from graphics import Graphics
 
@@ -33,7 +34,11 @@ def input():
         elif event.type == KEYUP:
             if event.key == K_LSUPER or event.key == K_RSUPER:
                 cmd = False
-
+        elif event.type == MOUSEBUTTONUP and event.button == 1:
+            x, y = event.pos
+            x -= Graphics.DRAW_OFFSET['x']
+            y -= Graphics.DRAW_OFFSET['y']
+            game.handleClick(x, y)
 
 while True:
     input()

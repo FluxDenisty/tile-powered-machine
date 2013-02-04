@@ -2,6 +2,7 @@ import pygame
 import json
 from random import shuffle
 from graphics import Graphics
+from tile import Tile
 
 DRAW_OFFSET = Graphics.DRAW_OFFSET
 window = Graphics.window
@@ -9,11 +10,22 @@ window = Graphics.window
 
 class Game:
 
+    TILE_SIZE = 50
+
     def __init__(self, width, height):
         global window
         window = Graphics.window
         self.width = width
         self.height = height
+
+        self.cardWidth = 80
+        self.cardHeight = 100
+
+        self.activePlayer = 0
+
+        self.handSize = [[0] * 1] * 2
+        self.hands = [[None] * 6] * 2
+
         self.cards = []
         self.deckSize = 0
 
@@ -45,28 +57,67 @@ class Game:
     def draw(self):
         global DRAW_OFFSET
         self.drawBoard()
-        DRAW_OFFSET['y'] += self.height * 50
+        DRAW_OFFSET['y'] += self.height * Tile.SIZE
         self.drawHand()
-        DRAW_OFFSET['y'] -= self.height * 50
+        DRAW_OFFSET['y'] -= self.height * Tile.SIZE
 
     def drawBoard(self):
         global DRAW_OFFSET, window
-        box = list((DRAW_OFFSET['x'], DRAW_OFFSET['y'], self.width * 50, self.height * 50))
+        box = list((DRAW_OFFSET['x'], DRAW_OFFSET['y'], 0, 0))
+        box[2] = self.width * Tile.SIZE
+        box[3] = self.height * Tile.SIZE
         window.fill(pygame.Color('grey'), box, 0)
 
-        box[2] = 50
-        box[3] = 50
+        box[2] = Tile.SIZE
+        box[3] = Tile.SIZE
         for x in xrange(0, len(self.grid)):
             box[1] = DRAW_OFFSET['y']
             for y in xrange(0, len(self.grid[x])):
                 tile = self.grid[x][y]
                 if tile is None:
                     pygame.draw.rect(window, pygame.Color('red'), box, 1)
+                else:
+                    tile.draw(window, box[0], box[1])
 
-                box[1] += 50
-            box[0] += 50
+                box[1] += Tile.SIZE
+            box[0] += Tile.SIZE
 
     def drawHand(self):
         global DRAW_OFFSET, window
-        box = (DRAW_OFFSET['x'], DRAW_OFFSET['y'], self.width * 50, 100)
-        window.fill(pygame.Color('green'), box, 0)
+
+        box = list((DRAW_OFFSET['x'], DRAW_OFFSET['y'], 0, 0))
+        box[2] = self.width * Tile.SIZE
+        box[3] = 100
+        window.fill(pygame.Color('blue'), box, 0)
+
+    def handleClick(self, x, y):
+        if x > self.width * Tile.SIZE:
+            return 0
+
+        if y > self.height * Tile.SIZE:
+            index = y / self.cardWidth
+            if index < self.getHandSize:
+                self.cardClicked(index)
+            return 1
+        else:
+            self.tileClicked(x / Tile.SIZE, y / Tile.SIZE)
+
+    def cardClicked(self, index):
+        return 0
+
+    def tileClicked(self, x, y):
+        tile = self.grid[x][y]
+        if tile is None:
+            self.grid[x][y] = Tile(self.tileData[self.deck.pop()])
+        else:
+            tile.rotate()
+
+    def getHand(self):
+        return self.hands[self.activePlayer]
+
+    def getHandSize(self):
+        return self.handSizes[self.activePlayer]
+
+    def drawCard(self):
+        self.getHand()[self.getHandSize()] = self.deck.pop()
+        self.handSizes[self.activePlayer] += 1
