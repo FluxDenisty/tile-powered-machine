@@ -34,11 +34,11 @@ def input():
         elif event.type == KEYUP:
             if event.key == K_LSUPER or event.key == K_RSUPER:
                 cmd = False
-        elif event.type == MOUSEBUTTONUP and event.button == 1:
+        elif event.type == MOUSEBUTTONUP:
             x, y = event.pos
             x -= Graphics.DRAW_OFFSET['x']
             y -= Graphics.DRAW_OFFSET['y']
-            game.handleClick(x, y)
+            game.handleClick(x, y, event.button == 1)
 
 while True:
     input()

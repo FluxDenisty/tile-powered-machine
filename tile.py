@@ -9,17 +9,25 @@ class Tile:
         L - top and right
         T - bottom left and right
         X - all
-    NOTE: rotation is clockwise
+    Rotation is clockwise
     Rotation order is top, right, bottom, left
     '''
 
     SIZE = 50
 
-    def __init__(self, data):
+    def __init__(self, data, mID, x, y):
         self.data = data
         self.conType = data['conType']
         self.rotation = 0
         self.setConnections()
+        self.mID = mID
+        self.x = x
+        self.y = y
+        self.active = False
+
+    def flip(self):
+        self.active = not(self.active)
+        return self.active
 
     def rotate(self):
         self.rotation = (self.rotation + 1) % 4
@@ -46,8 +54,12 @@ class Tile:
     def draw(self, window, x, y):
         window.fill(pygame.Color("white"), (x, y, self.SIZE, self.SIZE), 0)
         green = pygame.Color("green")
+        black = pygame.Color("black")
+        grey = pygame.Color("grey")
         off = self.SIZE / 2
         middle = (off + x, off + y)
+
+        # Draw Connections
         if (self.connections[0]):
             pygame.draw.line(window, green, (off + x, y), middle, 3)
         if (self.connections[1]):
@@ -56,3 +68,11 @@ class Tile:
             pygame.draw.line(window, green, (off + x, self.SIZE + y), middle, 3)
         if (self.connections[3]):
             pygame.draw.line(window, green, (x, off + y), middle, 3)
+
+        font = pygame.font.Font(None, 36)
+        text = font.render(chr(ord('A') + self.mID), 1, black)
+        text_pos = (middle[0] - text.get_width() / 2, middle[1] - text.get_height() / 2)
+        radius = (text.get_height() / 2) + 3
+        pygame.draw.circle(window, green if self.active else grey, middle, radius)
+        pygame.draw.circle(window, black, middle, radius, 1)
+        window.blit(text, text_pos)

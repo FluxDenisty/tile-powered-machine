@@ -3,6 +3,7 @@ import json
 from random import shuffle
 from graphics import Graphics
 from tile import Tile
+from menu import Menu
 
 DRAW_OFFSET = Graphics.DRAW_OFFSET
 window = Graphics.window
@@ -25,6 +26,8 @@ class Game:
 
         self.handSize = [[0] * 1] * 2
         self.hands = [[None] * 6] * 2
+
+        self.menu = Menu(self)
 
         self.cards = []
         self.deckSize = 0
@@ -55,11 +58,12 @@ class Game:
             self.deckSize += tile['number']
 
     def draw(self):
-        global DRAW_OFFSET
+        global DRAW_OFFSET, window
         self.drawBoard()
         DRAW_OFFSET['y'] += self.height * Tile.SIZE
         self.drawHand()
         DRAW_OFFSET['y'] -= self.height * Tile.SIZE
+        self.menu.draw(window)
 
     def drawBoard(self):
         global DRAW_OFFSET, window
@@ -90,7 +94,9 @@ class Game:
         box[3] = 100
         window.fill(pygame.Color('blue'), box, 0)
 
-    def handleClick(self, x, y):
+    def handleClick(self, x, y, left=True):
+        if (self.menu.handleClick(x, y)):
+            return 1
         if x > self.width * Tile.SIZE:
             return 0
 
@@ -100,7 +106,12 @@ class Game:
                 self.cardClicked(index)
             return 1
         else:
-            self.tileClicked(x / Tile.SIZE, y / Tile.SIZE)
+            if (left):
+                self.tileClicked(x / Tile.SIZE, y / Tile.SIZE)
+            else:
+                tile = self.grid[x / Tile.SIZE][y / Tile.SIZE]
+                self.menu.activate(tile, x, y)
+            return 1
 
     def cardClicked(self, index):
         return 0
@@ -108,9 +119,13 @@ class Game:
     def tileClicked(self, x, y):
         tile = self.grid[x][y]
         if tile is None:
-            self.grid[x][y] = Tile(self.tileData[self.deck.pop()])
+            tileID = self.deck.pop()
+            self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y)
         else:
             tile.rotate()
+
+    def destroyTile(self, x, y):
+        self.grid[x][y] = None
 
     def getHand(self):
         return self.hands[self.activePlayer]
