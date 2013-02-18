@@ -1,6 +1,7 @@
 import pygame
 import sys
-from pygame.locals import KEYDOWN, KEYUP, K_LSUPER, K_RSUPER, K_q, K_w, QUIT
+from pygame.locals import KEYDOWN, KEYUP, K_LSUPER, K_RSUPER, QUIT
+from pygame.locals import K_q, K_w, K_d, K_t
 from pygame.locals import MOUSEBUTTONUP
 from game import Game
 from graphics import Graphics
@@ -34,6 +35,10 @@ def input():
         elif event.type == KEYUP:
             if event.key == K_LSUPER or event.key == K_RSUPER:
                 cmd = False
+            elif event.key == K_d:
+                game.addCard()
+            elif event.key == K_t:
+                game.endTurn()
         elif event.type == MOUSEBUTTONUP:
             x, y = event.pos
             x -= Graphics.DRAW_OFFSET['x']

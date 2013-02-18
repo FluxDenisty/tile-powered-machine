@@ -12,6 +12,7 @@ window = Graphics.window
 class Game:
 
     TILE_SIZE = 50
+    HAND_SIZE = 7
 
     def __init__(self, width, height):
         global window
@@ -19,13 +20,15 @@ class Game:
         self.width = width
         self.height = height
 
-        self.cardWidth = 80
+        self.cardWidth = 75
         self.cardHeight = 100
 
         self.activePlayer = 0
+        self.selectedCard = None
 
-        self.handSize = [[0] * 1] * 2
-        self.hands = [[None] * 6] * 2
+        self.hands = [None] * 2
+        self.hands[0] = [None] * self.HAND_SIZE
+        self.hands[1] = [None] * self.HAND_SIZE
 
         self.menu = Menu(self)
 
@@ -34,6 +37,11 @@ class Game:
 
         self.parseTiles()
         self.makeDeck()
+
+        # Draw opening hands
+        for player in xrange(0, 2):
+            for i in xrange(0, 5):
+                self.hands[player][i] = self.deck.pop()
 
         self.grid = [[None for y in range(self.height)] for x in range(self.width)]
 
@@ -56,6 +64,8 @@ class Game:
 
         for tile in self.tileData:
             self.deckSize += tile['number']
+
+    ## DRAW FUNCTIONS ##
 
     def draw(self):
         global DRAW_OFFSET, window
@@ -94,6 +104,28 @@ class Game:
         box[3] = 100
         window.fill(pygame.Color('blue'), box, 0)
 
+        white = pygame.Color('white')
+        black = pygame.Color('black')
+        green = pygame.Color('green')
+        box = list((DRAW_OFFSET['x'] + 5, DRAW_OFFSET['y'] + 5, 70, 90))
+        font = pygame.font.Font(None, 42)
+        for i in xrange(0, self.HAND_SIZE):
+            card = self.getHand()[i]
+            if card is not None:
+                window.fill(white, box, 0)
+                if (self.selectedCard == i):
+                    pygame.draw.rect(window, green, box, 5)
+                else:
+                    pygame.draw.rect(window, black, box, 2)
+                text = font.render(chr(ord('A') + card), 1, black)
+                text_pos = list(box)
+                text_pos[0] += 5
+                text_pos[1] += 5
+                window.blit(text, text_pos)
+            box[0] += 75
+
+    ## EVENT HANDLERS ##
+
     def handleClick(self, x, y, left=True):
         if (self.menu.handleClick(x, y)):
             return 1
@@ -101,9 +133,8 @@ class Game:
             return 0
 
         if y > self.height * Tile.SIZE:
-            index = y / self.cardWidth
-            if index < self.getHandSize:
-                self.cardClicked(index)
+            index = x / self.cardWidth
+            self.cardClicked(index)
             return 1
         else:
             if (left):
@@ -114,25 +145,42 @@ class Game:
             return 1
 
     def cardClicked(self, index):
-        return 0
+        if (index == self.selectedCard):
+            self.selectedCard = None
+        elif self.getHand()[index] is not None:
+            self.selectedCard = index
+        return 1
 
     def tileClicked(self, x, y):
         tile = self.grid[x][y]
         if tile is None:
-            tileID = self.deck.pop()
-            self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y)
+            tileID = self.takeCard()
+            if (tileID is not None):
+                self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y)
         else:
             tile.rotate()
 
     def destroyTile(self, x, y):
         self.grid[x][y] = None
 
+    def addCard(self):
+        hand = self.getHand()
+        for i in xrange(0, self.HAND_SIZE):
+            if hand[i] is None:
+                hand[i] = self.deck.pop()
+                return
+
+    def takeCard(self):
+        card = None
+        if (self.selectedCard is not None):
+            card = self.getHand()[self.selectedCard]
+            self.getHand()[self.selectedCard] = None
+            self.selectedCard = None
+        return card
+
+    def endTurn(self):
+        self.activePlayer = 0 if self.activePlayer == 1 else 1
+        self.selectedCard = None
+
     def getHand(self):
         return self.hands[self.activePlayer]
-
-    def getHandSize(self):
-        return self.handSizes[self.activePlayer]
-
-    def drawCard(self):
-        self.getHand()[self.getHandSize()] = self.deck.pop()
-        self.handSizes[self.activePlayer] += 1
