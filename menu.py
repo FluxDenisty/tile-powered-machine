@@ -13,18 +13,19 @@ class Menu:
         self.tile = None
         self.x = 0
         self.y = 0
-        self.options = [None] * 4
+        self.options = [None] * 2
 
-    def activate(self, tile, x, y):
+    def activate(self, x, y, tile=None):
+        self.active = True
+        self.x = x
+        self.y = y
+        self.tile = tile
         if (tile is not None):
-            self.active = True
-            self.tile = tile
-            self.x = x
-            self.y = y
             self.options[0] = "Flip Tile"
             self.options[1] = "Destroy Tile"
-            self.options[2] = "X_Move Tile_X"
-            self.options[3] = "X_Create Tile_X"
+        else:
+            self.options[0] = "Discard Selected"
+            self.options[1] = "X_Scavenge VP_X"
 
     def handleClick(self, x, y):
         right = self.x + self.WIDTH
@@ -34,9 +35,15 @@ class Menu:
         if (x >= self.x and x <= right and y >= self.y and y <= bottom):
             option = (y - self.y) / self.OPTION_HEIGHT
             if option is 0:
-                self.tile.flip()
+                if (self.tile is None):
+                    self.game.discardSelected()
+                else:
+                    self.tile.flip()
             elif option is 1:
-                self.game.destroyTile(self.tile.x, self.tile.y)
+                if (self.tile is None):
+                    self.game.scavenge(True)
+                else:
+                    self.game.destroyTile(self.tile.x, self.tile.y)
         self.active = False
         return 1
 

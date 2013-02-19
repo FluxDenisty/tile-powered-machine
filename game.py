@@ -98,15 +98,17 @@ class Game:
 
     def drawHand(self):
         global DRAW_OFFSET, window
+        white = pygame.Color('white')
+        black = pygame.Color('black')
+        green = pygame.Color('green')
+        blue = pygame.Color('blue')
+        red = pygame.Color('red')
 
         box = list((DRAW_OFFSET['x'], DRAW_OFFSET['y'], 0, 0))
         box[2] = self.width * Tile.SIZE
         box[3] = 100
-        window.fill(pygame.Color('blue'), box, 0)
+        window.fill(blue if self.activePlayer == 0 else red, box, 0)
 
-        white = pygame.Color('white')
-        black = pygame.Color('black')
-        green = pygame.Color('green')
         box = list((DRAW_OFFSET['x'] + 5, DRAW_OFFSET['y'] + 5, 70, 90))
         font = pygame.font.Font(None, 42)
         for i in xrange(0, self.HAND_SIZE):
@@ -133,15 +135,18 @@ class Game:
             return 0
 
         if y > self.height * Tile.SIZE:
-            index = x / self.cardWidth
-            self.cardClicked(index)
+            if (not left and self.selectedCard is not None):
+                self.menu.activate(x, y)
+            else:
+                index = x / self.cardWidth
+                self.cardClicked(index)
             return 1
         else:
             if (left):
                 self.tileClicked(x / Tile.SIZE, y / Tile.SIZE)
             else:
                 tile = self.grid[x / Tile.SIZE][y / Tile.SIZE]
-                self.menu.activate(tile, x, y)
+                self.menu.activate(x, y, tile)
             return 1
 
     def cardClicked(self, index):
@@ -156,7 +161,7 @@ class Game:
         if tile is None:
             tileID = self.takeCard()
             if (tileID is not None):
-                self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y)
+                self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y, self.activePlayer)
         else:
             tile.rotate()
 
@@ -177,6 +182,11 @@ class Game:
             self.getHand()[self.selectedCard] = None
             self.selectedCard = None
         return card
+
+    def discardSelected(self):
+        if (self.selectedCard is not None):
+            self.getHand()[self.selectedCard] = None
+            self.selectedCard = None
 
     def endTurn(self):
         self.activePlayer = 0 if self.activePlayer == 1 else 1

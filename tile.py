@@ -15,7 +15,7 @@ class Tile:
 
     SIZE = 50
 
-    def __init__(self, data, mID, x, y):
+    def __init__(self, data, mID, x, y, owner):
         self.data = data
         self.conType = data['conType']
         self.rotation = 0
@@ -23,6 +23,7 @@ class Tile:
         self.mID = mID
         self.x = x
         self.y = y
+        self.owner = owner
         self.active = False
 
     def flip(self):
@@ -52,7 +53,8 @@ class Tile:
         self.connections = ret
 
     def draw(self, window, x, y):
-        window.fill(pygame.Color("white"), (x, y, self.SIZE, self.SIZE), 0)
+        bg = pygame.Color('blue') if self.owner == 0 else pygame.Color('red')
+        window.fill(bg, (x, y, self.SIZE, self.SIZE), 0)
         green = pygame.Color("green")
         black = pygame.Color("black")
         grey = pygame.Color("grey")
