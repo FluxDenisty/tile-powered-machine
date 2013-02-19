@@ -1,21 +1,26 @@
 [
     {
+        "name": "Victory Point",
         "number": 20,
         "conType": "O"
     },
     {
+        "name": "Generator",
         "number": 20,
         "conType": "I"
     },
     {
+        "name": "Cannon",
         "number": 20,
         "conType": "L"
     },
     {
+        "name": "Sapper",
         "number": 20,
         "conType": "T"
     },
     {
+        "name": "Connector",
         "number": 20,
         "conType": "X"
     }

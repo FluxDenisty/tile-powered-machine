@@ -4,6 +4,7 @@ from random import shuffle
 from graphics import Graphics
 from tile import Tile
 from menu import Menu
+from sidebar import SideBar
 
 DRAW_OFFSET = Graphics.DRAW_OFFSET
 window = Graphics.window
@@ -31,6 +32,15 @@ class Game:
         self.hands[1] = [None] * self.HAND_SIZE
 
         self.menu = Menu(self)
+        self.sideBar = SideBar()
+        self.sideBar.addItem("LClick cards to select them")
+        self.sideBar.addItem("LClick placed tiles to rotate them")
+        self.sideBar.addItem("RClick tile for tile menu")
+        self.sideBar.addItem("RClick card for card menu")
+        self.sideBar.addItem("CMN + D to draw")
+        self.sideBar.addItem("CMN + T to end turn")
+        self.sideBar.addItem("LClick board to place selected tile")
+        self.sideBar.addItem("")
 
         self.cards = []
         self.deckSize = 0
@@ -50,6 +60,8 @@ class Game:
         i = 0
         index = 0
         for tile in self.tileData:
+            letter = chr(ord('A') + i)
+            self.sideBar.addItem(letter + " - " + tile['name'])
             for j in xrange(0, tile['number']):
                 self.deck[index] = i
                 index += 1
@@ -73,6 +85,9 @@ class Game:
         DRAW_OFFSET['y'] += self.height * Tile.SIZE
         self.drawHand()
         DRAW_OFFSET['y'] -= self.height * Tile.SIZE
+        DRAW_OFFSET['x'] += self.width * Tile.SIZE
+        self.sideBar.draw(window)
+        DRAW_OFFSET['x'] -= self.width * Tile.SIZE
         self.menu.draw(window)
 
     def drawBoard(self):
@@ -161,7 +176,8 @@ class Game:
         if tile is None:
             tileID = self.takeCard()
             if (tileID is not None):
-                self.grid[x][y] = Tile(self.tileData[tileID], tileID, x, y, self.activePlayer)
+                tile = Tile(self.tileData[tileID], tileID, x, y, self.activePlayer)
+                self.grid[x][y] = tile
         else:
             tile.rotate()
 

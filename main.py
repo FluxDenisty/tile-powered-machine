@@ -12,7 +12,7 @@ HEIGHT = 15
 pygame.init()
 clock = pygame.time.Clock()
 
-Graphics(WIDTH * 50 + 10, HEIGHT * 50 + 100 + 10)
+Graphics(WIDTH * 50 + 400 + 10, HEIGHT * 50 + 100 + 10)
 pygame.display.set_caption('tile-powered-machine')
 
 cmd = False
