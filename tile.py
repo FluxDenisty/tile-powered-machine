@@ -17,14 +17,19 @@ class Tile:
 
     def __init__(self, data, mID, x, y, owner):
         self.data = data
-        self.conType = data['conType']
         self.rotation = 0
-        self.setConnections()
+        self.loadData(self.data)
         self.mID = mID
         self.x = x
         self.y = y
         self.owner = owner
         self.active = False
+
+    def loadData(self, data):
+        self.conType = data['conType']
+        self.power = data['power']
+        self.cost = data['cost']
+        self.setConnections()
 
     def flip(self):
         self.active = not(self.active)
@@ -76,5 +81,5 @@ class Tile:
         text_pos = (middle[0] - text.get_width() / 2, middle[1] - text.get_height() / 2)
         radius = (text.get_height() / 2) + 3
         pygame.draw.circle(window, green if self.active else grey, middle, radius)
-        pygame.draw.circle(window, black, middle, radius, 1)
+        pygame.draw.circle(window, black, middle, radius, 2)
         window.blit(text, text_pos)

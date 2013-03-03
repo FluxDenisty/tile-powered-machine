@@ -1,27 +1,51 @@
 [
     {
-        "name": "Victory Point",
-        "number": 20,
-        "conType": "O"
+        "name": "Base",
+        "number": 0,
+        "conType": "T",
+        "power": 10,
+        "cost": 0
     },
     {
-        "name": "Generator",
+        "name": "Victory Point",
         "number": 20,
-        "conType": "I"
+        "conType": "O",
+        "power": -20,
+        "cost": 30
+    },
+    {
+        "name": "Basic Generator",
+        "number": 20,
+        "conType": "I",
+        "power": 10,
+        "cost": 10
+    },
+    {
+        "name": "Advanced Generator",
+        "number": 20,
+        "conType": "O",
+        "power": 30,
+        "cost": 20
     },
     {
         "name": "Cannon",
         "number": 20,
-        "conType": "L"
+        "conType": "L",
+        "power": -10,
+        "cost": 20
     },
     {
         "name": "Sapper",
         "number": 20,
-        "conType": "T"
+        "conType": "T",
+        "power": 0,
+        "cost": 30
     },
     {
         "name": "Connector",
         "number": 20,
-        "conType": "X"
+        "conType": "X",
+        "power": 0,
+        "cost": 0
     }
 ]

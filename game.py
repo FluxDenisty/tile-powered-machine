@@ -37,8 +37,9 @@ class Game:
         self.sideBar.addItem("LClick placed tiles to rotate them")
         self.sideBar.addItem("RClick tile for tile menu")
         self.sideBar.addItem("RClick card for card menu")
-        self.sideBar.addItem("CMN + D to draw")
-        self.sideBar.addItem("CMN + T to end turn")
+        self.sideBar.addItem("D to draw")
+        self.sideBar.addItem("T to end turn")
+        self.sideBar.addItem("R to reload json data")
         self.sideBar.addItem("LClick board to place selected tile")
         self.sideBar.addItem("")
 
@@ -54,14 +55,20 @@ class Game:
                 self.hands[player][i] = self.deck.pop()
 
         self.grid = [[None for y in range(self.height)] for x in range(self.width)]
+        base0 = Tile(self.tileData[0], 0, self.width / 2, 0, 0)
+        base1 = Tile(self.tileData[0], 0, self.width / 2, 0, 1)
+        base0.active = base1.active = True
+        self.grid[self.width / 2][0] = base1
+        self.grid[self.width / 2][self.height - 1] = base0
 
-    def makeDeck(self):
+    def makeDeck(self, firstRun=True):
         self.deck = [None] * self.deckSize
         i = 0
         index = 0
         for tile in self.tileData:
             letter = chr(ord('A') + i)
-            self.sideBar.addItem(letter + " - " + tile['name'])
+            if firstRun is True:
+                self.sideBar.addItem(letter + " - " + tile['name'])
             for j in xrange(0, tile['number']):
                 self.deck[index] = i
                 index += 1
@@ -74,8 +81,19 @@ class Game:
         self.tileData = json.load(json_data)
         json_data.close()
 
+        self.deckSize = 0
         for tile in self.tileData:
+            print tile['conType']
             self.deckSize += tile['number']
+
+    def reloadData(self):
+        self.parseTiles()
+        self.makeDeck(False)
+        for col in self.grid:
+            for tile in col:
+                if tile is not None:
+                    print "updating tile"
+                    tile.loadData(self.tileData[tile.mID])
 
     ## DRAW FUNCTIONS ##
 
