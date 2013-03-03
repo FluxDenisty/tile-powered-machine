@@ -38,7 +38,7 @@ class Menu:
                 if (self.tile is None):
                     self.game.discardSelected()
                 else:
-                    self.tile.flip()
+                    self.game.flipTile(self.tile.x, self.tile.y)
             elif option is 1:
                 if (self.tile is None):
                     self.game.scavenge(True)

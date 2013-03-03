@@ -24,7 +24,6 @@ def input():
             pygame.quit()
             sys.exit()
         elif event.type == KEYDOWN:
-            print event.key
             if event.key == K_ESCAPE:
                 pygame.quit()
                 sys.exit()

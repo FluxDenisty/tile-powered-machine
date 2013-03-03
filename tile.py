@@ -24,6 +24,7 @@ class Tile:
         self.y = y
         self.owner = owner
         self.active = False
+        self.checked = False
 
     def loadData(self, data):
         self.conType = data['conType']

@@ -31,6 +31,8 @@ class Game:
         self.hands[0] = [None] * self.HAND_SIZE
         self.hands[1] = [None] * self.HAND_SIZE
 
+        self.powerHandles = [None] * 2
+
         self.menu = Menu(self)
         self.sideBar = SideBar()
         self.sideBar.addItem("LClick cards to select them")
@@ -48,6 +50,7 @@ class Game:
 
         self.parseTiles()
         self.makeDeck()
+        self.sideBar.addItem("")
 
         # Draw opening hands
         for player in xrange(0, 2):
@@ -55,11 +58,14 @@ class Game:
                 self.hands[player][i] = self.deck.pop()
 
         self.grid = [[None for y in range(self.height)] for x in range(self.width)]
-        base0 = Tile(self.tileData[0], 0, self.width / 2, 0, 0)
+        base0 = Tile(self.tileData[0], 0, self.width / 2, self.height - 1, 0)
         base1 = Tile(self.tileData[0], 0, self.width / 2, 0, 1)
         base0.active = base1.active = True
         self.grid[self.width / 2][0] = base1
         self.grid[self.width / 2][self.height - 1] = base0
+
+        self.calculatePower(0)
+        self.calculatePower(1)
 
     def makeDeck(self, firstRun=True):
         self.deck = [None] * self.deckSize
@@ -83,7 +89,6 @@ class Game:
 
         self.deckSize = 0
         for tile in self.tileData:
-            print tile['conType']
             self.deckSize += tile['number']
 
     def reloadData(self):
@@ -92,8 +97,55 @@ class Game:
         for col in self.grid:
             for tile in col:
                 if tile is not None:
-                    print "updating tile"
                     tile.loadData(self.tileData[tile.mID])
+
+    def calculatePower(self, player=None):
+        if player is None:
+            player = self.activePlayer
+
+        x = self.width / 2
+        # HACKHACKHACKHACKHACKHACKHACK Hack
+        y = (self.height - 1) * (1 - player)
+        base = self.grid[x][y]
+
+        for col in self.grid:
+            for tile in col:
+                if tile is not None:
+                    tile.checked = False
+
+        power = self.powerBFS(base, player)
+
+        output = "Player " + str(player + 1) + " power: " + str(power)
+        if self.powerHandles[player] is None:
+            self.powerHandles[player] = self.sideBar.addItem(output)
+        else:
+            self.sideBar.editItem(output, self.powerHandles[player])
+
+    def powerBFS(self, tile, player):
+        tile.checked = True
+        power = 0
+        if tile.active:
+            power += tile.power
+        con = tile.getConnections()
+
+        adjacent = [None] * 4
+        if tile.y != 0:
+            adjacent[0] = self.grid[tile.x][tile.y - 1]
+        if tile.x != self.width - 1:
+            adjacent[1] = self.grid[tile.x + 1][tile.y]
+        if tile.y != self.height - 1:
+            adjacent[2] = self.grid[tile.x][tile.y + 1]
+        if tile.x != 0:
+            adjacent[3] = self.grid[tile.x - 1][tile.y]
+
+        for i in xrange(0, 4):
+            other = adjacent[i]
+            if other is None or other.owner is not player or other.checked is True:
+                continue
+            if con[i] is True and other.getConnections()[(i + 2) % 4] is True:
+                power += self.powerBFS(other, player)
+
+        return power
 
     ## DRAW FUNCTIONS ##
 
@@ -144,6 +196,7 @@ class Game:
 
         box = list((DRAW_OFFSET['x'] + 5, DRAW_OFFSET['y'] + 5, 70, 90))
         font = pygame.font.Font(None, 42)
+        smallFont = pygame.font.Font(None, 24)
         for i in xrange(0, self.HAND_SIZE):
             card = self.getHand()[i]
             if card is not None:
@@ -156,6 +209,10 @@ class Game:
                 text_pos = list(box)
                 text_pos[0] += 5
                 text_pos[1] += 5
+                window.blit(text, text_pos)
+
+                text = smallFont.render(self.tileData[card]["conType"], 1, black)
+                text_pos[1] += 50
                 window.blit(text, text_pos)
             box[0] += 75
 
@@ -198,9 +255,16 @@ class Game:
                 self.grid[x][y] = tile
         else:
             tile.rotate()
+        self.calculatePower()
+
+    def flipTile(self, x, y):
+        tile = self.grid[x][y]
+        tile.flip()
+        self.calculatePower(tile.owner)
 
     def destroyTile(self, x, y):
         self.grid[x][y] = None
+        self.calculatePower()
 
     def addCard(self):
         hand = self.getHand()
@@ -223,8 +287,10 @@ class Game:
             self.selectedCard = None
 
     def endTurn(self):
+        self.calculatePower()
         self.activePlayer = 0 if self.activePlayer == 1 else 1
         self.selectedCard = None
+        self.calculatePower()
 
     def getHand(self):
         return self.hands[self.activePlayer]

@@ -14,6 +14,11 @@ class SideBar:
     def addItem(self, item):
         text = self.font.render(item, 1, pygame.Color('black'))
         self.items.append(text)
+        return len(self.items) - 1
+
+    def editItem(self, item, index):
+        text = self.font.render(item, 1, pygame.Color('black'))
+        self.items[index] = text
 
     def draw(self, window):
         DRAW_OFFSET = Graphics.DRAW_OFFSET
